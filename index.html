@@ -6,12 +6,34 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>Lightbot JS</h1>
-    </header>
+    <header><h1>Lightbot JS</h1></header>
     <main class="game-wrapper">
         <div class="left-panel">
             <div id="grid-container" class="grid"></div>
+        </div>
+        <div class="right-panel">
+            <div class="command-palette">
+                <button onclick="addCmd('fwd')">⬆️</button>
+                <button onclick="addCmd('left')">🔄E</button>
+                <button onclick="addCmd('right')">🔄D</button>
+                <button onclick="addCmd('jump')">🦘</button>
+                <button onclick="addCmd('light')">💡</button>
+                <button onclick="addCmd('p1')">P1</button>
+                <button onclick="addCmd('p2')">P2</button>
+                <button onclick="removeLastCmd()">⌫</button>
+            </div>
+            <div class="program-box active" id="box-main" onclick="selectBox('main')">
+                <h3>MAIN</h3>
+                <div class="cmd-list" id="list-main"></div>
+            </div>
+            <div class="program-box" id="box-p1" onclick="selectBox('p1')">
+                <h3>P1</h3>
+                <div class="cmd-list" id="list-p1"></div>
+            </div>
+            <div class="program-box" id="box-p2" onclick="selectBox('p2')">
+                <h3>P2</h3>
+                <div class="cmd-list" id="list-p2"></div>
+            </div>
         </div>
     </main>
     <script src="script.js"></script>

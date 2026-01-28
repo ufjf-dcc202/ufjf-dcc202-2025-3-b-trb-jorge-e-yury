@@ -34,3 +34,10 @@ body {
     width: 100%;
     height: 100%;
 }
+.game-wrapper { gap: 20px; display: flex; justify-content: center; }
+.right-panel { width: 300px; display: flex; flex-direction: column; gap: 10px; }
+.command-palette { background: var(--panel-bg); padding: 10px; border-radius: 8px; text-align: center; }
+.program-box { background: var(--panel-bg); padding: 10px; border-radius: 8px; min-height: 50px; cursor: pointer; border: 2px solid transparent; }
+.program-box.active { border-color: #f1c40f; }
+.cmd-icon { display: inline-block; width: 30px; height: 30px; background: white; color: black; margin: 2px; text-align: center; line-height: 30px; }
+button { padding: 8px; cursor: pointer; margin: 2px; }

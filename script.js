@@ -17,6 +17,8 @@ const level = {
 };
 
 let robot = { ...level.start };
+let programs = { main: [], p1: [], p2: [] };
+let activeBox = 'main';
 
 function renderGrid() {
     const container = document.getElementById('grid-container');
@@ -49,3 +51,32 @@ function renderGrid() {
 }
 
 renderGrid();
+
+function selectBox(name) {
+    activeBox = name;
+    document.querySelectorAll('.program-box').forEach(el => el.classList.remove('active'));
+    document.getElementById(`box-${name}`).classList.add('active');
+}
+
+function addCmd(cmd) {
+    programs[activeBox].push(cmd);
+    renderPrograms();
+}
+
+function removeLastCmd() {
+    programs[activeBox].pop();
+    renderPrograms();
+}
+
+function renderPrograms() {
+    ['main', 'p1', 'p2'].forEach(key => {
+        const div = document.getElementById(`list-${key}`);
+        div.innerHTML = '';
+        programs[key].forEach(c => {
+            const span = document.createElement('span');
+            span.className = 'cmd-icon';
+            span.innerText = c === 'fwd' ? '⬆' : c.substring(0,2);
+            div.appendChild(span);
+        });
+    });
+}
