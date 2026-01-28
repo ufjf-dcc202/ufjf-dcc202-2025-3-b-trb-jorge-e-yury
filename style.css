@@ -2,22 +2,25 @@
     --bg-color: #2c3e50;
     --panel-bg: #34495e;
 }
-
 body {
-    font-family: Arial, sans-serif;
+    font-family: sans-serif;
     background-color: var(--bg-color);
     color: white;
-    padding: 20px;
-}
-
-.game-wrapper {
     display: flex;
-    gap: 30px;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
 }
-
-.left-panel, .right-panel {
-    background-color: var(--panel-bg);
-    padding: 15px;
+.grid {
+    display: grid;
+    gap: 2px;
+    background-color: #222;
+    padding: 10px;
     border-radius: 8px;
 }
+.cell {
+    width: 50px;
+    height: 50px;
+    background-color: #95a5a6;
+    border-radius: 4px;
+}
+.cell.empty { background-color: transparent; }
