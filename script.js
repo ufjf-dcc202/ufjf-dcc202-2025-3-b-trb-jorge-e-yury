@@ -80,3 +80,46 @@ function renderPrograms() {
         });
     });
 }
+let isRunning = false;
+
+async function runGame() {
+    if (isRunning) return;
+    isRunning = true;
+    resetRobot();
+    await executeList('main');
+    isRunning = false;
+}
+
+function resetRobot() {
+    robot = { ...level.start };
+    renderGrid();
+}
+
+async function executeList(listName) {
+    const list = programs[listName];
+    for (let i = 0; i < list.length; i++) {
+        const cmd = list[i];
+        await new Promise(r => setTimeout(r, 500));
+        
+        if (cmd === 'left') robot.dir = (robot.dir + 3) % 4;
+        else if (cmd === 'right') robot.dir = (robot.dir + 1) % 4;
+        else if (cmd === 'fwd') moveForward();
+        
+        renderGrid();
+    }
+}
+
+function moveForward() {
+    let nx = robot.x, ny = robot.y;
+    if (robot.dir === 0) ny--;
+    if (robot.dir === 1) nx++;
+    if (robot.dir === 2) ny++;
+    if (robot.dir === 3) nx--;
+    
+    if (nx >= 0 && nx < level.width && ny >= 0 && ny < level.height) {
+        if (level.map[ny][nx] !== 0) {
+            robot.x = nx;
+            robot.y = ny;
+        }
+    }
+}

@@ -41,3 +41,9 @@ body {
 .program-box.active { border-color: #f1c40f; }
 .cmd-icon { display: inline-block; width: 30px; height: 30px; background: white; color: black; margin: 2px; text-align: center; line-height: 30px; }
 button { padding: 8px; cursor: pointer; margin: 2px; }
+
+.cmd-icon.running {
+    background-color: #f39c12;
+    color: white;
+    transform: scale(1.1);
+ }
