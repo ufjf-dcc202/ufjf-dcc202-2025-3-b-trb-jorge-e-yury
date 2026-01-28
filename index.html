@@ -2,45 +2,63 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Lightbot Clone</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lightbot Clone - Trabalho Prático</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header><h1>Lightbot JS</h1></header>
+    <header>
+        <h1>Lightbot JS - Fase <span id="level-indicator">1</span></h1>
+        <p>Controles: Selecione a caixa (Main, P1, P2) e clique nos comandos.</p>
+    </header>
+
     <main class="game-wrapper">
+        
         <div class="left-panel">
             <div id="grid-container" class="grid"></div>
-        </div>
-        <div class="controls">
-            <button onclick="runGame()">▶ Executar</button>
-            <button onclick="resetRobot()">⏮ Reiniciar</button>
+            <div class="controls">
+                <button class="btn-action" onclick="runGame()">▶ Executar</button>
+                <button class="btn-action btn-stop" onclick="stopGame()">⏹ Parar</button>
+                <button class="btn-action btn-reset" onclick="resetRobot()">⏮ Reiniciar</button>
+                <button class="btn-action btn-clear" onclick="clearAll()">🗑 Limpar Tudo</button>
+            </div>
+            <div id="message-area" class="message"></div>
         </div>
 
         <div class="right-panel">
+            
             <div class="command-palette">
-                <button onclick="addCmd('fwd')">⬆️</button>
-                <button onclick="addCmd('left')">🔄E</button>
-                <button onclick="addCmd('right')">🔄D</button>
-                <button onclick="addCmd('jump')">🦘</button>
-                <button onclick="addCmd('light')">💡</button>
-                <button onclick="addCmd('p1')">P1</button>
-                <button onclick="addCmd('p2')">P2</button>
-                <button onclick="removeLastCmd()">⌫</button>
+                <h3>Comandos</h3>
+                <div class="buttons">
+                    <button onclick="addCmd('fwd')" title="Avançar">⬆️</button>
+                    <button onclick="addCmd('jump')" title="Pular">🦘</button>
+                    <button onclick="addCmd('left')" title="Esquerda">🔄E</button>
+                    <button onclick="addCmd('right')" title="Direita">🔄D</button>
+                    <button onclick="addCmd('light')" title="Acender">💡</button>
+                    <button onclick="addCmd('p1')" class="btn-p1" title="Chamar P1">P1</button>
+                    <button onclick="addCmd('p2')" class="btn-p2" title="Chamar P2">P2</button>
+                    <button onclick="removeLastCmd()" title="Apagar último">⌫</button>
+                </div>
             </div>
+
             <div class="program-box active" id="box-main" onclick="selectBox('main')">
-                <h3>MAIN</h3>
+                <h3>MAIN (Principal) <span class="badge">Ativo</span></h3>
                 <div class="cmd-list" id="list-main"></div>
             </div>
+
             <div class="program-box" id="box-p1" onclick="selectBox('p1')">
-                <h3>P1</h3>
+                <h3>PROC 1 (P1)</h3>
                 <div class="cmd-list" id="list-p1"></div>
             </div>
+
             <div class="program-box" id="box-p2" onclick="selectBox('p2')">
-                <h3>P2</h3>
+                <h3>PROC 2 (P2)</h3>
                 <div class="cmd-list" id="list-p2"></div>
             </div>
         </div>
+
     </main>
+
     <script src="script.js"></script>
 </body>
 </html>
