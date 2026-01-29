@@ -16,7 +16,7 @@ O objetivo do jogo é programar os movimentos de um robô para que ele acenda to
 
 ## Como rodar o projeto
 
-Você pode acessar o jogo diretamente pelo GitHub Pages ([link na descrição do repositório](https://ufjf-dcc202.github.io/ufjf-dcc202-2025-3-b-trb-jorge-e-yury/)) ou rodar localmente:
+Você pode acessar o jogo diretamente pelo GitHub Pages ([Clicando aqui](https://ufjf-dcc202.github.io/ufjf-dcc202-2025-3-b-trb-jorge-e-yury/)) ou rodar localmente:
 
 1. Clone este repositório.
 2. Abra o arquivo `index.html` em qualquer navegador moderno (Chrome, Firefox, Edge).
