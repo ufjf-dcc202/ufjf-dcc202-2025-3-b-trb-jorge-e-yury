@@ -1,15 +1,14 @@
 const levels = [
     {
         id: 1,
-        width: 10,
-        height: 10,
+        width: 10, height: 10,
         map: [
             [0,0,0,0,0,0,0,0,0,0],
             [0,1,1,1,1,1,0,0,0,0],
             [0,1,0,0,0,1,0,0,0,0],
             [0,1,0,0,0,1,1,1,0,0],
             [0,1,1,0,0,0,0,1,0,0],
-            [0,0,1,0,1,1,1,1,0,0],
+            [0,1,1,0,1,1,1,1,0,0],
             [0,0,1,1,1,0,0,0,0,0],
             [0,0,0,0,1,1,1,1,2,0],
             [0,0,0,0,0,0,1,0,0,0],
@@ -19,8 +18,7 @@ const levels = [
     },
     {
         id: 2,
-        width: 6,
-        height: 6,
+        width: 6, height: 6,
         map: [
             [0,0,0,0,0,0],
             [0,1,1,1,1,0],
@@ -33,8 +31,7 @@ const levels = [
     },
     {
         id: 3,
-        width: 6,
-        height: 5,
+        width: 6, height: 5,
         map: [
             [1,1,0,0,0,0],
             [0,1,1,0,0,0],
@@ -46,21 +43,18 @@ const levels = [
     },
     {
         id: 4,
-        width: 12,
-        height: 12,
+        width: 10, height: 10,
         map: [
-            [0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,1,1,1,0,1,1,1,1,1,0,0],
-            [0,1,0,1,0,1,0,0,0,1,1,0],
-            [0,1,0,1,1,1,0,1,0,0,1,0],
-            [0,1,0,0,0,1,0,1,1,1,1,0],
-            [0,1,1,1,0,1,0,0,0,0,1,0],
-            [0,0,0,1,0,1,1,1,1,0,1,0],
-            [0,1,1,1,1,0,0,0,1,0,1,0],
-            [0,1,0,0,1,1,1,0,1,1,1,0],
-            [0,1,1,0,0,0,1,0,0,0,1,0],
-            [0,0,1,1,1,1,1,1,1,2,1,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0]
+            [0,0,0,0,0,0,0,0,0,0],
+            [0,1,1,1,0,1,1,1,1,0],
+            [0,1,0,1,0,1,0,0,1,0],
+            [0,1,0,1,1,1,0,0,1,0],
+            [0,1,0,0,0,1,0,1,1,0],
+            [0,1,1,1,0,1,0,0,0,0],
+            [0,0,0,1,0,1,1,1,1,0],
+            [0,1,1,1,1,0,0,0,1,0],
+            [0,1,0,0,1,1,1,0,1,0],
+            [0,0,1,1,1,1,1,1,2,0]
         ],
         start: { x: 1, y: 1, dir: 1 }
     }
@@ -71,8 +65,12 @@ let level = levels[0];
 let robot = { ...level.start };
 let programs = { main: [], p1: [], p2: [] };
 let activeBox = 'main';
+
 let isRunning = false;
+let isStepMode = false;
+let stepTrigger = null;
 let abortController = null;
+let litTiles = []; 
 
 function init() {
     loadLevel(currentLevelIdx);
@@ -82,8 +80,8 @@ function loadLevel(idx) {
     currentLevelIdx = idx;
     level = levels[idx];
     document.getElementById('level-indicator').innerText = idx + 1;
+    closeModal();
     resetRobot();
-    updateUI();
 }
 
 function selectBox(boxName) {
@@ -94,7 +92,10 @@ function selectBox(boxName) {
 
 function addCmd(cmd) {
     if (isRunning) return;
-    if (programs[activeBox].length >= 12) return;
+    if (programs[activeBox].length >= 12) {
+        alert("Máximo de 12 comandos por bloco!");
+        return;
+    }
     programs[activeBox].push(cmd);
     renderPrograms();
 }
@@ -113,13 +114,8 @@ function clearAll() {
 }
 
 const iconsMap = {
-    fwd: '⬆️',
-    left: '🔄E',
-    right: '🔄D',
-    jump: '🦘',
-    light: '💡',
-    p1: 'P1',
-    p2: 'P2'
+    fwd: '⬆️', left: 'E', right: 'D', jump: '🦘',
+    light: '💡', p1: 'P1', p2: 'P2'
 };
 
 function renderPrograms() {
@@ -138,9 +134,9 @@ function renderPrograms() {
     });
 }
 
-function renderGrid() {
+function renderGridWithState() {
     const container = document.getElementById('grid-container');
-    container.style.gridTemplateColumns = `repeat(${level.width}, 50px)`;
+    container.style.gridTemplateColumns = `repeat(${level.width}, 40px)`;
     container.innerHTML = '';
 
     for (let y = 0; y < level.height; y++) {
@@ -148,11 +144,14 @@ function renderGrid() {
             const cellType = level.map[y][x];
             const div = document.createElement('div');
             div.classList.add('cell');
-            div.id = `cell-${x}-${y}`;
-
+            
             if (cellType === 0) div.classList.add('empty');
             else if (cellType === 1) div.classList.add('tile');
             else if (cellType === 2) div.classList.add('blue');
+
+            if (litTiles.some(t => t.x === x && t.y === y)) {
+                div.classList.add('lit');
+            }
 
             if (robot.x === x && robot.y === y) {
                 const bot = document.createElement('div');
@@ -162,7 +161,6 @@ function renderGrid() {
                 bot.style.transform = `rotate(${rotations[robot.dir]}deg)`;
                 div.appendChild(bot);
             }
-
             container.appendChild(div);
         }
     }
@@ -170,48 +168,83 @@ function renderGrid() {
 
 function resetRobot() {
     robot = { ...level.start };
-    document.querySelectorAll('.lit').forEach(el => el.classList.remove('lit'));
+    litTiles = []; 
     document.getElementById('message-area').innerText = "";
-    renderGrid();
+    renderGridWithState();
 }
 
-async function runGame() {
+function runFull() {
+    if (isRunning && isStepMode) {
+        isStepMode = false;
+        if (stepTrigger) stepTrigger();
+        return;
+    }
+    startExecution(false);
+}
+
+function runStep() {
+    if (isRunning) {
+        if (stepTrigger) stepTrigger();
+    } else {
+        startExecution(true);
+    }
+}
+
+async function startExecution(stepMode) {
     if (isRunning) return;
     isRunning = true;
+    isStepMode = stepMode;
     resetRobot();
     abortController = new AbortController();
 
     try {
-        await executeList('main', abortController.signal);
+        await executeList('main', abortController.signal, 0);
         checkWin();
-    } catch {}
-    finally {
+    } catch (e) {
+        if (e.message !== 'ABORT') console.error(e);
+    } finally {
         isRunning = false;
+        stepTrigger = null;
         document.querySelectorAll('.cmd-icon').forEach(el => el.classList.remove('running'));
     }
 }
 
 function stopGame() {
-    if (abortController) abortController.abort();
+    if (abortController) abortController.abort('ABORT');
     isRunning = false;
+    stepTrigger = null;
+    resetRobot();
 }
 
-async function executeList(listName, signal) {
-    const list = programs[listName];
+async function executeList(listName, signal, depth) {
+    if (depth > 50) {
+        alert("Erro: Recursão muito profunda");
+        throw new Error('RECURSION_LIMIT');
+    }
 
+    const list = programs[listName];
     for (let i = 0; i < list.length; i++) {
-        if (signal.aborted) throw new Error();
+        if (signal.aborted) throw new Error('ABORT');
+        
         const cmd = list[i];
         const uiCmd = document.getElementById(`cmd-${listName}-${i}`);
         if (uiCmd) uiCmd.classList.add('running');
-        await new Promise(r => setTimeout(r, 500));
 
-        if (cmd === 'p1') await executeList('p1', signal);
-        else if (cmd === 'p2') await executeList('p2', signal);
+        if (isStepMode) {
+            await new Promise(resolve => { stepTrigger = resolve; });
+        } else {
+            await new Promise(r => setTimeout(r, 400));
+        }
+
+        if (cmd === 'p1') await executeList('p1', signal, depth + 1);
+        else if (cmd === 'p2') await executeList('p2', signal, depth + 1);
         else performAction(cmd);
 
-        renderGrid();
+        renderGridWithState();
+        
         if (uiCmd) uiCmd.classList.remove('running');
+        
+        if (cmd === 'light') checkWin(true); 
     }
 }
 
@@ -227,7 +260,6 @@ function performAction(cmd) {
             robot.dir = (robot.dir + 1) % 4;
             break;
         case 'fwd':
-        case 'jump':
             if (robot.dir === 0) nextY--;
             if (robot.dir === 1) nextX++;
             if (robot.dir === 2) nextY++;
@@ -238,10 +270,26 @@ function performAction(cmd) {
                 robot.y = nextY;
             }
             break;
+        case 'jump':
+            let jumpX = robot.x;
+            let jumpY = robot.y;
+            
+            if (robot.dir === 0) jumpY -= 2;
+            if (robot.dir === 1) jumpX += 2;
+            if (robot.dir === 2) jumpY += 2;
+            if (robot.dir === 3) jumpX -= 2;
+
+            if (isValidMove(jumpX, jumpY)) {
+                robot.x = jumpX;
+                robot.y = jumpY;
+            }
+            break;
         case 'light':
             if (level.map[robot.y][robot.x] === 2) {
-                const cellDiv = document.getElementById(`cell-${robot.x}-${robot.y}`);
-                if (cellDiv) cellDiv.classList.add('lit');
+                const alreadyLit = litTiles.some(t => t.x === robot.x && t.y === robot.y);
+                if (!alreadyLit) {
+                    litTiles.push({x: robot.x, y: robot.y});
+                }
             }
             break;
     }
@@ -252,24 +300,50 @@ function isValidMove(x, y) {
     return level.map[y][x] !== 0;
 }
 
-function checkWin() {
+function checkWin(silent = false) {
     let totalTargets = 0;
     level.map.forEach(row => row.forEach(cell => { if (cell === 2) totalTargets++; }));
-    const litCount = document.querySelectorAll('.lit').length;
+    
+    let litCount = 0;
+    litTiles.forEach(tile => {
+        if (level.map[tile.y][tile.x] === 2) litCount++;
+    });
+
     const msg = document.getElementById('message-area');
 
     if (totalTargets > 0 && totalTargets === litCount) {
-        msg.innerText = "🎉 FASE CONCLUÍDA! 🎉";
-        msg.style.color = "#2ecc71";
-        setTimeout(() => {
-            if (currentLevelIdx < levels.length - 1) {
-                loadLevel(currentLevelIdx + 1);
-                clearAll();
-            }
-        }, 1000);
+        if (!silent) {
+            msg.innerText = "Fase Concluída!";
+            msg.style.color = "#2ecc71";
+            stopGame();
+            showWinModal();
+        }
+    }
+}
+
+function showWinModal() {
+    const modal = document.getElementById('win-modal');
+    const nextBtn = document.getElementById('btn-next-level');
+    
+    modal.classList.remove('hidden');
+    
+    if (currentLevelIdx >= levels.length - 1) {
+        nextBtn.style.display = 'none';
+        document.querySelector('.modal-content h2').innerText = "🎉 Jogo Zerado!";
+        document.querySelector('.modal-content p').innerText = "Parabéns, você completou todos os níveis.";
     } else {
-        msg.innerText = "Tente novamente...";
-        msg.style.color = "#e74c3c";
+        nextBtn.style.display = 'inline-block';
+    }
+}
+
+function closeModal() {
+    document.getElementById('win-modal').classList.add('hidden');
+}
+
+function nextLevel() {
+    if (currentLevelIdx < levels.length - 1) {
+        loadLevel(currentLevelIdx + 1);
+        clearAll();
     }
 }
 
